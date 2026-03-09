@@ -1,0 +1,34 @@
+{
+  "dist-ethers": {
+    "totalRaw": 416660,
+    "totalGzip": 145819,
+    "totalBrotli": 126948,
+    "files": [
+      {
+        "file": "index-ethers-Cs3Jf3vT.js",
+        "raw": 416660,
+        "gzip": 145819,
+        "brotli": 126948
+      }
+    ]
+  },
+  "dist-viem": {
+    "totalRaw": 435078,
+    "totalGzip": 135797,
+    "totalBrotli": 110349,
+    "files": [
+      {
+        "file": "ccip-ChDaO0gU.js",
+        "raw": 2674,
+        "gzip": 1267,
+        "brotli": 1103
+      },
+      {
+        "file": "index-viem-CogXUD9T.js",
+        "raw": 432404,
+        "gzip": 134530,
+        "brotli": 109246
+      }
+    ]
+  }
+}
