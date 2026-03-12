@@ -12,7 +12,20 @@ export function BenchmarkPanel({ onResult }: BenchmarkPanelProps) {
   const [repeats, setRepeats] = useState(100)
   const [includeWallet, setIncludeWallet] = useState(false)
   const [running, setRunning] = useState(false)
+  const [connecting, setConnecting] = useState(false)
   const [lastResult, setLastResult] = useState<BenchmarkResultSet | null>(null)
+
+  const hasWallet = adapter && 'eth_requestAccounts' in adapter && typeof adapter.eth_requestAccounts === 'function'
+
+  const onConnect = async () => {
+    if (!hasWallet) return
+    setConnecting(true)
+    try {
+      await adapter!.eth_requestAccounts!()
+    } finally {
+      setConnecting(false)
+    }
+  }
 
   const onRun = async () => {
     if (!adapter) return
@@ -57,6 +70,16 @@ export function BenchmarkPanel({ onResult }: BenchmarkPanelProps) {
               />
               {' '}Include connectWallet
             </label>
+            {hasWallet && (
+              <button
+                type="button"
+                onClick={onConnect}
+                disabled={connecting}
+                data-testid="connect-wallet"
+              >
+                {connecting ? 'Connecting…' : 'Connect wallet'}
+              </button>
+            )}
             <button
               onClick={onRun}
               disabled={running}

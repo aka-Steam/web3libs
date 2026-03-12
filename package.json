@@ -14,7 +14,10 @@
     "anvil": "anvil",
     "start-anvil": "node scripts/start-anvil.js",
     "run-bundle-analysis": "node scripts/run-bundle-analysis.js",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "test:e2e:wallet": "playwright test e2e/benchmark-wallet.spec.ts --headed",
+    "test:e2e:wallet:ci": "xvfb-run -a playwright test e2e/benchmark-wallet.spec.ts --headed",
+    "test:e2e:wallet:full": "concurrently -k -n dev,test \"npm run dev\" \"sleep 5 && npm run test:e2e:wallet\""
   },
   "dependencies": {
     "ethers": "^6.13.0",
@@ -24,7 +27,7 @@
   },
   "devDependencies": {
     "concurrently": "^9.1.0",
-    "@playwright/test": "^1.49.0",
+    "@playwright/test": "1.48.2",
     "@synthetixio/synpress": "^4.0.0",
     "@eslint/js": "^9.13.0",
     "@types/react": "^18.3.12",

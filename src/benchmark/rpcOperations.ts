@@ -70,37 +70,6 @@ export const WALLET_OPERATIONS: RpcOperation[] = [
       })
     },
   },
-  {
-    id: 'wallet_sendRawTransaction',
-    name: 'eth_sendRawTransaction',
-    requiresWallet: true,
-    run: async (adapter) => {
-      if (
-        !('prepareRawTransaction' in adapter) ||
-        typeof adapter.prepareRawTransaction !== 'function' ||
-        !('signTransaction' in adapter) ||
-        typeof adapter.signTransaction !== 'function' ||
-        !('eth_sendRawTransaction' in adapter) ||
-        typeof adapter.eth_sendRawTransaction !== 'function'
-      ) {
-        throw new Error('Wallet adapter does not support raw transaction round-trip')
-      }
-      const chainId = await adapter.eth_chainId()
-      const unsigned = await adapter.prepareRawTransaction({
-        to: TEST_ADDRESS,
-        value: 0n,
-        data: '0x',
-        gasLimit: 21000n,
-        chainId,
-      })
-      const signed = await adapter.signTransaction({
-        to: TEST_ADDRESS,
-        value: 0n,
-        data: '0x',
-        gasLimit: 21000n,
-        chainId,
-      })
-      await adapter.eth_sendRawTransaction(signed || unsigned.serialized)
-    },
-  },
+  // wallet_sendRawTransaction временно отключён: требует confirmTransaction/confirmSignature
+  // в Synpress при каждом вызове; можно включить при наличии автоматизации popup.
 ]

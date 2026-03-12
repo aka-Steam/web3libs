@@ -93,7 +93,9 @@ npm run test:e2e
 Тесты с MetaMask (connectWallet, подтверждение транзакций) требуют **Synpress** и **Linux**:
 
 1. На Ubuntu (или другом дистрибутиве) выполнить один раз: `npx synpress` (сборка кэша кошелька).
-2. Запуск: `npx playwright test e2e/benchmark-wallet.spec.ts`.
+2. Запуск: `npm run test:e2e:wallet` или `npx playwright test e2e/benchmark-wallet.spec.ts --headed`.  
+   **Важно:** тесты с MetaMask нужно запускать в headed-режиме (с видимым окном браузера), чтобы Synpress мог обрабатывать popup-подтверждения.
+3. Для CI (без дисплея): `npm run test:e2e:wallet:ci` (использует xvfb-run).
 
 Тесты с кошельком прогоняются для ethers и viem отдельно; результаты сохраняются в `e2e-results/wallet-ethers.json` и `e2e-results/wallet-viem.json`.
 
@@ -114,6 +116,14 @@ npm run test:e2e
     npx playwright@1.48.2 install chromium --with-deps
     ```
     Команда скачает Chromium `chromium-1140` в `~/.cache/ms-playwright/chromium-1140/...`, после чего `npx synpress` сможет собрать кэш кошелька без ошибок.
+
+- **Wallet-тесты: `Target page, context or browser has been closed` при `connectToDapp()`**  
+  - **Симптомы:** Synpress находит popup MetaMask, но при ожидании загрузки UI страница/контекст закрывается.  
+  - **Причина:** известная несовместимость MetaMask (LavaMoat) с headless/виртуальным дисплеем; popup может закрываться до завершения взаимодействия.  
+  - **Возможные решения:**  
+    1. Запускать тесты на машине с реальным дисплеем (не через SSH без X11).  
+    2. Использовать `xvfb-run` с window manager (например, `fluxbox`): `xvfb-run -a fluxbox & sleep 2 && npm run test:e2e:wallet`.  
+    3. См. [Synpress Known Issues](https://docs.synpress.io/docs/known-issues) и [CI guide](https://docs.synpress.io/docs/guides/ci).
 
 ## Анализ размера бандла
 

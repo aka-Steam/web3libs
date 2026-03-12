@@ -65,10 +65,11 @@ export async function runBenchmark(
 
   try {
     const ops = includeWalletMetrics ? WALLET_OPERATIONS : RPC_OPERATIONS
+    const effectiveRepeats = includeWalletMetrics ? Math.min(repeats, 1) : repeats
 
     for (const op of ops) {
       try {
-        const timings = await runAndMeasure(() => op.run(adapter), repeats)
+        const timings = await runAndMeasure(() => op.run(adapter), effectiveRepeats)
         const stats = computeStats(timings)
         results.push({ operationId: op.id, name: op.name, timings, stats })
       } catch (e) {
