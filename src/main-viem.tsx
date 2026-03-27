@@ -19,6 +19,7 @@ createRoot(document.getElementById('root')!).render(
         rpcUrl,
         error: null,
         loading: false,
+        createAdapterForRpc: (url) => createViemAdapter({ rpcUrl: url, ethereum }),
       }}
     >
       <App />

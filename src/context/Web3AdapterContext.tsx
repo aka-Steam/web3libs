@@ -9,12 +9,16 @@ export const Web3AdapterContext = createContext<{
   rpcUrl: string
   error: string | null
   loading: boolean
+  createAdapterForRpc: (rpcUrl: string) => Web3Adapter
 }>({
   adapter: null,
   libId: null,
   rpcUrl: defaultRpcUrl,
   error: null,
   loading: true,
+  createAdapterForRpc: () => {
+    throw new Error('Web3AdapterContext: createAdapterForRpc used outside provider')
+  },
 })
 
 export function useWeb3Adapter() {

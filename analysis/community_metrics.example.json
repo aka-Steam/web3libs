@@ -1,0 +1,22 @@
+{
+  "_comment": "Скопируйте в community_metrics.json и подставьте актуальные значения с GitHub и npm (дата снятия — в поле collected_at).",
+  "_collected_at": "2025-03-22",
+  "ethers": {
+    "github_stars": 7000,
+    "github_forks": 1200,
+    "github_watchers": 180,
+    "npm_weekly_downloads": 1200000,
+    "npm_dependents": 45000,
+    "npm_dependencies": 12,
+    "first_release_date": "2015-10-01"
+  },
+  "viem": {
+    "github_stars": 8500,
+    "github_forks": 900,
+    "github_watchers": 120,
+    "npm_weekly_downloads": 800000,
+    "npm_dependents": 38000,
+    "npm_dependencies": 8,
+    "first_release_date": "2023-02-28"
+  }
+}

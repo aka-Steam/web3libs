@@ -2,7 +2,7 @@ import { useState } from 'react'
 import { useWeb3Adapter } from '../context/Web3AdapterContext'
 
 export function NegativeTestsPanel() {
-  const { adapter, libId } = useWeb3Adapter()
+  const { adapter, createAdapterForRpc } = useWeb3Adapter()
   const [wrongRpcError, setWrongRpcError] = useState<string | null>(null)
   const [switchChainResult, setSwitchChainResult] = useState<string | null>(null)
 
@@ -11,15 +11,8 @@ export function NegativeTestsPanel() {
     if (!adapter) return
     const badUrl = 'http://127.0.0.1:9999'
     try {
-      if (libId === 'ethers') {
-        const { createEthersAdapter } = await import('../adapters/ethersAdapter')
-        const badAdapter = createEthersAdapter({ rpcUrl: badUrl })
-        await badAdapter.eth_blockNumber()
-      } else {
-        const { createViemAdapter } = await import('../adapters/viemAdapter')
-        const badAdapter = createViemAdapter({ rpcUrl: badUrl })
-        await badAdapter.eth_blockNumber()
-      }
+      const badAdapter = createAdapterForRpc(badUrl)
+      await badAdapter.eth_blockNumber()
     } catch (e) {
       setWrongRpcError(e instanceof Error ? e.message : String(e))
     }

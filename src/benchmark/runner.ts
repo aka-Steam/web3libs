@@ -1,6 +1,6 @@
 import type { Web3Adapter } from '../adapters/types'
 import { computeStats, type TimingStats } from './stats'
-import { RPC_OPERATIONS, WALLET_OPERATIONS } from './rpcOperations'
+import { type RpcOperation, RPC_OPERATIONS, WALLET_OPERATIONS } from './rpcOperations'
 
 declare global {
   interface Window {
@@ -48,6 +48,28 @@ export async function runAndMeasure(fn: () => Promise<void>, repeats: number): P
 }
 
 /**
+ * Замер операции: если у операции есть `runSetup`, он выполняется перед каждой итерацией
+ * без таймера; в замер попадает только `run`.
+ */
+async function measureOperationTimings(
+  op: RpcOperation,
+  adapter: Web3Adapter,
+  repeats: number
+): Promise<number[]> {
+  if (op.runSetup) {
+    const timings: number[] = []
+    for (let i = 0; i < repeats; i++) {
+      await op.runSetup(adapter)
+      const start = performance.now()
+      await op.run(adapter)
+      timings.push(performance.now() - start)
+    }
+    return timings
+  }
+  return runAndMeasure(() => op.run(adapter), repeats)
+}
+
+/**
  * Run full benchmark: all RPC operations + optional cold/hot start and connectWallet.
  * Results are written to window.__benchmarkResults for E2E to read.
  */
@@ -69,7 +91,7 @@ export async function runBenchmark(
 
     for (const op of ops) {
       try {
-        const timings = await runAndMeasure(() => op.run(adapter), effectiveRepeats)
+        const timings = await measureOperationTimings(op, adapter, effectiveRepeats)
         const stats = computeStats(timings)
         results.push({ operationId: op.id, name: op.name, timings, stats })
       } catch (e) {

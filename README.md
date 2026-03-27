@@ -160,6 +160,7 @@ npm run build:viem    # выход: dist-viem/
   - По каждой RPC-операции (все методы из `rpcOperations`): **mean**, **p95**, **min**, **max** (мс).
   - **Cold start** (мс) — время от начала загрузки адаптера до готовности; выводится в результатах и в экспорте.
   - **connectWallet** (мс) — при включённом «Include connectWallet» замеряется время до получения аккаунтов после `eth_requestAccounts`.
+  - При включённом «Include connectWallet» также wallet-операции: **prepareRawTransaction** (формирование), **signTransaction** (подпись), **eth_sendRawTransaction (send only)** — для последней подпись выполняется в `runSetup` без таймера, в замер попадает только вызов `eth_sendRawTransaction` (отправка в сеть).
 - **Фиксация:** кнопка **Export JSON** сохраняет полный результат (в т.ч. cold start, connectWallet, массив операций со статистикой) для последующего сравнения ethers vs viem.
 
 ### Размер бандла

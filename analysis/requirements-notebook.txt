@@ -1,0 +1,12 @@
+# Python-окружение для analysis/mcda_comparison.ipynb
+# Установка: pip install -r analysis/requirements-notebook.txt
+
+ahpy>=2.0
+pymcdm>=1.3
+pandas>=2.0
+numpy>=1.24
+scipy>=1.10
+scikit-learn>=1.3
+jupyter>=1.0
+ipykernel>=6.0
+nbconvert>=7.0

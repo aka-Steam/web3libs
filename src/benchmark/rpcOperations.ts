@@ -7,6 +7,11 @@ export interface RpcOperation {
   name: string
   requiresWallet?: boolean
   run: (adapter: Web3Adapter) => Promise<void>
+  /**
+   * Если задано, перед каждой итерацией замера вызывается `runSetup` (без таймера),
+   * затем замеряется только `run`. Нужно для этапов вроде «только отправка» после подписи.
+   */
+  runSetup?: (adapter: Web3Adapter) => Promise<void>
 }
 
 // RPC-операции, не требующие кошелька (используются в rpc-*.json)
@@ -70,6 +75,56 @@ export const WALLET_OPERATIONS: RpcOperation[] = [
       })
     },
   },
-  // wallet_sendRawTransaction временно отключён: требует confirmTransaction/confirmSignature
-  // в Synpress при каждом вызове; можно включить при наличии автоматизации popup.
+  {
+    id: 'wallet_signTransaction',
+    name: 'signTransaction',
+    requiresWallet: true,
+    run: async (adapter) => {
+      if (!('signTransaction' in adapter) || typeof adapter.signTransaction !== 'function') {
+        throw new Error('Wallet adapter does not support signTransaction')
+      }
+      const chainId = await adapter.eth_chainId()
+      await adapter.signTransaction({
+        to: TEST_ADDRESS,
+        value: 0n,
+        data: '0x',
+        gasLimit: 21000n,
+        chainId,
+      })
+    },
+  },
+  createSendRawTransactionSendOnlyOperation(),
 ]
+
+/** Замер только `eth_sendRawTransaction`: подпись в `runSetup`, в таймере — broadcast. */
+function createSendRawTransactionSendOnlyOperation(): RpcOperation {
+  let signedHex = ''
+  return {
+    id: 'wallet_eth_sendRawTransaction',
+    name: 'eth_sendRawTransaction (send only)',
+    requiresWallet: true,
+    runSetup: async (adapter) => {
+      if (!('signTransaction' in adapter) || typeof adapter.signTransaction !== 'function') {
+        throw new Error('Wallet adapter does not support signTransaction')
+      }
+      if (!('eth_sendRawTransaction' in adapter) || typeof adapter.eth_sendRawTransaction !== 'function') {
+        throw new Error('Wallet adapter does not support eth_sendRawTransaction')
+      }
+      const chainId = await adapter.eth_chainId()
+      signedHex = await adapter.signTransaction({
+        to: TEST_ADDRESS,
+        value: 0n,
+        data: '0x',
+        gasLimit: 21000n,
+        chainId,
+      })
+    },
+    run: async (adapter) => {
+      const send = adapter.eth_sendRawTransaction
+      if (typeof send !== 'function') {
+        throw new Error('Wallet adapter does not support eth_sendRawTransaction')
+      }
+      await send(signedHex)
+    },
+  }
+}

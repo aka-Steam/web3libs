@@ -1,0 +1,17 @@
+{
+  "_comment": "Скопируйте в manual_metrics.json и заполните. Ключи — libId (как в стенде). Значения нормализуйте сами или оставьте сырыми — ноутбук может применить min-max по столбцу.",
+  "ethers": {
+    "github_stars": 7000,
+    "npm_weekly_downloads": 1200000,
+    "npm_package_size_kb": 450,
+    "error_handling_score": 0.75,
+    "error_handling_notes": "Субъективная оценка 0..1: типизация ошибок, сообщения, документация по revert"
+  },
+  "viem": {
+    "github_stars": 8500,
+    "npm_weekly_downloads": 800000,
+    "npm_package_size_kb": 380,
+    "error_handling_score": 0.82,
+    "error_handling_notes": "Пример заполнения"
+  }
+}

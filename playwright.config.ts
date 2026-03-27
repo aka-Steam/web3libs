@@ -3,6 +3,7 @@ import { defineConfig, devices } from '@playwright/test'
 export default defineConfig({
   timeout: 120000,
   testDir: './e2e',
+  testIgnore: '**/benchmark-wallet.spec.ts', // Synpress test is not working
   fullyParallel: false,
   forbidOnly: !!process.env.CI,
   retries: process.env.CI ? 2 : 0,

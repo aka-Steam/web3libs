@@ -9,6 +9,9 @@ function Main() {
   const [libId, setLibId] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [createAdapterForRpc, setCreateAdapterForRpc] = useState<
+    ((url: string) => import('./adapters/types').Web3Adapter) | null
+  >(null)
   const rpcUrl = getRpcUrl()
 
   useEffect(() => {
@@ -19,25 +22,31 @@ function Main() {
     const load = async () => {
       setLoading(true)
       setError(null)
+      setCreateAdapterForRpc(null)
       const coldStart = typeof performance !== 'undefined' ? performance.now() : 0
       try {
         const ethereum = typeof window !== 'undefined' ? (window as unknown as { ethereum?: import('./adapters/ethersAdapter').EIP1193Provider }).ethereum : undefined
         let instance: import('./adapters/types').Web3Adapter
+        let createForRpc: (url: string) => import('./adapters/types').Web3Adapter
         if (validLib === 'ethers') {
           const mod = await import('./adapters/ethersAdapter')
           instance = mod.createEthersAdapter({ rpcUrl, ethereum })
+          createForRpc = (url) => mod.createEthersAdapter({ rpcUrl: url, ethereum })
         } else if (validLib === 'viem') {
           const mod = await import('./adapters/viemAdapter')
           instance = mod.createViemAdapter({ rpcUrl, ethereum })
+          createForRpc = (url) => mod.createViemAdapter({ rpcUrl: url, ethereum })
         } else {
           const mod = await import('./adapters/web3Adapter')
           instance = mod.createWeb3Adapter({ rpcUrl, ethereum })
+          createForRpc = (url) => mod.createWeb3Adapter({ rpcUrl: url, ethereum })
         }
         const coldStartMs = typeof performance !== 'undefined' ? performance.now() - coldStart : undefined
         if (typeof window !== 'undefined' && coldStartMs !== undefined){
           (window as unknown as { __benchmarkColdStartMs?: number }).__benchmarkColdStartMs = coldStartMs
         };
         setAdapter(instance)
+        setCreateAdapterForRpc(() => createForRpc)
       } catch (e) {
         setError(e instanceof Error ? e.message : String(e))
       } finally {
@@ -55,6 +64,11 @@ function Main() {
         rpcUrl,
         error,
         loading,
+        createAdapterForRpc:
+          createAdapterForRpc ??
+          ((_url: string) => {
+            throw new Error('Adapter is not ready')
+          }),
       }}
     >
       <App />

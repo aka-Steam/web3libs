@@ -1,33 +1,133 @@
 {
+  "fullApplication": {
+    "ethers": {
+      "totalRaw": 421227,
+      "totalGzip": 146928,
+      "totalBrotli": 127667,
+      "files": [
+        {
+          "file": "index-ethers-6aGUodOQ.js",
+          "raw": 421227,
+          "gzip": 146928,
+          "brotli": 127667
+        }
+      ]
+    },
+    "viem": {
+      "totalRaw": 439615,
+      "totalGzip": 136917,
+      "totalBrotli": 111062,
+      "files": [
+        {
+          "file": "ccip-DLMsFrpZ.js",
+          "raw": 2674,
+          "gzip": 1266,
+          "brotli": 1101
+        },
+        {
+          "file": "index-viem-DHMoGguk.js",
+          "raw": 436941,
+          "gzip": 135651,
+          "brotli": 109961
+        }
+      ]
+    }
+  },
+  "libraryBundles": {
+    "ethers": {
+      "totalRaw": 261247,
+      "totalGzip": 96898,
+      "totalBrotli": 84237,
+      "files": [
+        {
+          "file": "index-lib-ethers-CoIwATU9.js",
+          "raw": 261247,
+          "gzip": 96898,
+          "brotli": 84237
+        }
+      ]
+    },
+    "viem": {
+      "totalRaw": 279703,
+      "totalGzip": 86744,
+      "totalBrotli": 67533,
+      "files": [
+        {
+          "file": "ccip-CmRBXWZq.js",
+          "raw": 2678,
+          "gzip": 1269,
+          "brotli": 1104
+        },
+        {
+          "file": "index-lib-viem-DuuZrafG.js",
+          "raw": 277025,
+          "gzip": 85475,
+          "brotli": 66429
+        }
+      ]
+    }
+  },
   "dist-ethers": {
-    "totalRaw": 416660,
-    "totalGzip": 145819,
-    "totalBrotli": 126948,
+    "totalRaw": 421227,
+    "totalGzip": 146928,
+    "totalBrotli": 127667,
     "files": [
       {
-        "file": "index-ethers-Cs3Jf3vT.js",
-        "raw": 416660,
-        "gzip": 145819,
-        "brotli": 126948
+        "file": "index-ethers-6aGUodOQ.js",
+        "raw": 421227,
+        "gzip": 146928,
+        "brotli": 127667
       }
     ]
   },
   "dist-viem": {
-    "totalRaw": 435078,
-    "totalGzip": 135797,
-    "totalBrotli": 110349,
+    "totalRaw": 439615,
+    "totalGzip": 136917,
+    "totalBrotli": 111062,
     "files": [
       {
-        "file": "ccip-ChDaO0gU.js",
+        "file": "ccip-DLMsFrpZ.js",
         "raw": 2674,
-        "gzip": 1267,
-        "brotli": 1103
+        "gzip": 1266,
+        "brotli": 1101
       },
       {
-        "file": "index-viem-CogXUD9T.js",
-        "raw": 432404,
-        "gzip": 134530,
-        "brotli": 109246
+        "file": "index-viem-DHMoGguk.js",
+        "raw": 436941,
+        "gzip": 135651,
+        "brotli": 109961
+      }
+    ]
+  },
+  "dist-lib-ethers": {
+    "totalRaw": 261247,
+    "totalGzip": 96898,
+    "totalBrotli": 84237,
+    "files": [
+      {
+        "file": "index-lib-ethers-CoIwATU9.js",
+        "raw": 261247,
+        "gzip": 96898,
+        "brotli": 84237
+      }
+    ]
+  },
+  "dist-lib-viem": {
+    "totalRaw": 279703,
+    "totalGzip": 86744,
+    "totalBrotli": 67533,
+    "files": [
+      {
+        "file": "ccip-CmRBXWZq.js",
+        "raw": 2678,
+        "gzip": 1269,
+        "brotli": 1104
+      },
+      {
+        "file": "index-lib-viem-DuuZrafG.js",
+        "raw": 277025,
+        "gzip": 85475,
+        "brotli": 66429
       }
     ]
   }

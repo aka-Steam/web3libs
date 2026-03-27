@@ -1,0 +1,13 @@
+{
+  "runAt": "2000-01-01T00:00:00.000Z",
+  "libId": "viem",
+  "timestamp": 0,
+  "operations": [
+    {
+      "operationId": "eth_chainId",
+      "name": "eth_chainId",
+      "timings": [0.11],
+      "stats": { "mean": 0.11, "min": 0.11, "max": 0.11, "p50": 0.11, "p95": 0.11, "p99": 0.11, "count": 1 }
+    }
+  ]
+}
