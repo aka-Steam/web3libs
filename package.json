@@ -15,6 +15,7 @@
     "start-anvil": "node scripts/start-anvil.js",
     "run-bundle-analysis": "node scripts/run-bundle-analysis.js",
     "test:e2e": "playwright test",
+    "test:e2e:nowallet": "playwright test e2e/benchmark-rpc.spec.ts --headed",
     "test:e2e:wallet": "playwright test e2e/benchmark-wallet.spec.ts --headed",
     "test:e2e:wallet:ci": "xvfb-run -a playwright test e2e/benchmark-wallet.spec.ts --headed",
     "test:e2e:wallet:full": "concurrently -k -n dev,test \"npm run dev\" \"sleep 5 && npm run test:e2e:wallet\""
