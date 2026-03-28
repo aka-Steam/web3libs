@@ -3,6 +3,7 @@ import { useWeb3Adapter } from './context/Web3AdapterContext'
 import { BenchmarkPanel } from './components/BenchmarkPanel'
 import { ResultsView } from './components/ResultsView'
 import { NegativeTestsPanel } from './components/NegativeTestsPanel'
+import { featureFlags } from './config/featureFlags'
 import type { BenchmarkResultSet } from './benchmark/runner'
 
 function App() {
@@ -39,7 +40,7 @@ function App() {
       {!loading && !error && adapter && <p>Adapter: {libId}</p>}
       <BenchmarkPanel onResult={setLastResult} />
       <ResultsView result={lastResult} />
-      <NegativeTestsPanel />
+      {featureFlags.negativeTestsPanel && <NegativeTestsPanel />}
     </div>
   )
 }
