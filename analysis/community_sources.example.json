@@ -1,0 +1,13 @@
+{
+  "_comment": "Скопируйте в community_sources.json. Соответствует репозиториям из web3-tools MetricsDisplay.tsx.",
+  "ethers": {
+    "github_owner": "ethers-io",
+    "github_repo": "ethers.js",
+    "npm_package": "ethers"
+  },
+  "viem": {
+    "github_owner": "wagmi-dev",
+    "github_repo": "viem",
+    "npm_package": "viem"
+  }
+}
