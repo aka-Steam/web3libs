@@ -1,0 +1,7 @@
+{
+    "_comment": "Скопируйте в community_dependents_overrides.json. Число публичных dependents npm не отдаётся в том же виде, что на сайте; укажите вручную или оставьте 0.",
+    "ethers": 160006,
+    "viem": 5281,
+    "web3": 85000
+  }
+  

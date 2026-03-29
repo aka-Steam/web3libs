@@ -9,7 +9,10 @@
     "build": "tsc -b && vite build",
     "build:ethers": "tsc -b && vite build --config vite.config.ethers.ts",
     "build:viem": "tsc -b && vite build --config vite.config.viem.ts",
+    "build:web3": "tsc -b && vite build --config vite.config.web3.ts",
     "lint": "eslint .",
+    "test:unit": "vitest run",
+    "test:unit:watch": "vitest",
     "preview": "vite preview",
     "anvil": "anvil",
     "start-anvil": "node scripts/start-anvil.js",
@@ -24,23 +27,27 @@
     "ethers": "^6.13.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "viem": "^2.21.0"
+    "viem": "^2.21.0",
+    "web3": "^4.16.0",
+    "web3-eth-accounts": "^4.3.1",
+    "web3-utils": "^4.3.3"
   },
   "devDependencies": {
-    "concurrently": "^9.1.0",
+    "@eslint/js": "^9.13.0",
+    "@johanneskares/wallet-mock": "^1.4.1",
     "@playwright/test": "1.48.2",
     "@synthetixio/synpress": "^4.0.0",
-    "@johanneskares/wallet-mock": "^1.4.1",
-    "@eslint/js": "^9.13.0",
     "@types/react": "^18.3.12",
     "@types/react-dom": "^18.3.1",
     "@vitejs/plugin-react": "^4.3.3",
+    "concurrently": "^9.1.0",
     "eslint": "^9.13.0",
     "eslint-plugin-react-hooks": "^5.0.0",
     "eslint-plugin-react-refresh": "^0.4.14",
     "globals": "^15.11.0",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.11.0",
-    "vite": "^5.4.10"
+    "vite": "^5.4.10",
+    "vitest": "^3.0.5"
   }
 }

@@ -18,5 +18,14 @@
     "npm_dependents": 38000,
     "npm_dependencies": 8,
     "first_release_date": "2023-02-28"
+  },
+  "web3": {
+    "github_stars": 19000,
+    "github_forks": 4800,
+    "github_watchers": 400,
+    "npm_weekly_downloads": 900000,
+    "npm_dependents": 120000,
+    "npm_dependencies": 20,
+    "first_release_date": "2015-07-31"
   }
 }

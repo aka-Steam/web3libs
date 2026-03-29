@@ -2,8 +2,10 @@ node_modules
 dist
 dist-ethers
 dist-viem
+dist-web3
 dist-lib-ethers
 dist-lib-viem
+dist-lib-web3
 e2e-results
 test-results
 playwright-report

@@ -9,5 +9,10 @@
     "github_owner": "wagmi-dev",
     "github_repo": "viem",
     "npm_package": "viem"
+  },
+  "web3": {
+    "github_owner": "ChainSafe",
+    "github_repo": "web3.js",
+    "npm_package": "web3"
   }
 }

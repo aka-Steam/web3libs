@@ -1,0 +1,13 @@
+{
+  "runAt": "2000-01-01T00:00:00.000Z",
+  "libId": "web3",
+  "timestamp": 0,
+  "operations": [
+    {
+      "operationId": "eth_chainId",
+      "name": "eth_chainId",
+      "timings": [0.15],
+      "stats": { "mean": 0.15, "min": 0.15, "max": 0.15, "p50": 0.15, "p95": 0.15, "p99": 0.15, "count": 1 }
+    }
+  ]
+}

@@ -29,7 +29,7 @@ def main() -> int:
     parser.add_argument(
         "--libraries",
         nargs="+",
-        default=["ethers", "viem"],
+        default=["ethers", "viem", "web3"],
         help="Keys of libraries (must exist in community_sources or defaults)",
     )
     parser.add_argument(

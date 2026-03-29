@@ -41,3 +41,16 @@ test.describe('Benchmark RPC (viem)', () => {
     if (results) saveResults('rpc', 'viem', results)
   })
 })
+
+test.describe('Benchmark RPC (web3)', () => {
+  test('run benchmark and collect results', async ({ page }) => {
+    await page.goto('/?lib=web3')
+    await page.waitForSelector('text=Adapter: web3', { timeout: 10000 })
+    await page.getByTestId('run-benchmark').click()
+    await page.waitForFunction(() => (window as unknown as { __benchmarkResults?: unknown }).__benchmarkResults != null, { timeout: 120000 })
+    const results = await page.evaluate(() => (window as unknown as { __benchmarkResults?: { libId: string; operations: unknown[] } }).__benchmarkResults)
+    expect(results?.libId).toBe('web3')
+    expect(results?.operations?.length).toBeGreaterThan(0)
+    if (results) saveResults('rpc', 'web3', results)
+  })
+})

@@ -21,6 +21,7 @@ from typing import Any
 DEFAULT_SOURCES: list[dict[str, str]] = [
     {"key": "ethers", "owner": "ethers-io", "repo": "ethers.js", "npm_package": "ethers"},
     {"key": "viem", "owner": "wagmi-dev", "repo": "viem", "npm_package": "viem"},
+    {"key": "web3", "owner": "ChainSafe", "repo": "web3.js", "npm_package": "web3"},
 ]
 
 

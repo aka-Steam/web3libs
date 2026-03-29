@@ -1,6 +1,6 @@
 # Web3 Test Stand
 
-Тестовый стенд для сравнения библиотек ethers.js и viem (с заглушкой для web3.js) в контексте frontend: RPC-методы, производительность, размер бандла, негативные сценарии.
+Тестовый стенд для сравнения библиотек **ethers.js**, **viem** и **web3.js** в контексте frontend: RPC-методы, производительность, размер бандла, негативные сценарии.
 
 ## Требования
 
@@ -13,6 +13,14 @@
 ```bash
 npm install
 ```
+
+Юнит-тесты (Vitest, без браузера и RPC по умолчанию):
+
+```bash
+npm run test:unit
+```
+
+Интеграционный тест адаптера web3 к локальному узлу: в bash `RPC_INTEGRATION=1 npm run test:unit`; в PowerShell `$env:RPC_INTEGRATION='1'; npm run test:unit` (предварительно запустите Anvil на `http://127.0.0.1:8545` или задайте `RPC_URL`).
 
 Опционально установить браузеры Playwright (для E2E):
 
@@ -36,7 +44,7 @@ npm run dev:all
 
 - `http://localhost:5173/?lib=ethers` — ethers.js
 - `http://localhost:5173/?lib=viem` — viem
-- `http://localhost:5173/?lib=web3` — заглушка web3.js (все методы выбросят ошибку)
+- `http://localhost:5173/?lib=web3` — web3.js (v4)
 
 По умолчанию RPC: `http://127.0.0.1:8545`. Чтобы изменить, создайте `.env`:
 
@@ -88,7 +96,7 @@ npm run test:e2e -- e2e/benchmark-rpc.spec.ts
 npm run test:e2e
 ```
 
-Тесты из `e2e/benchmark-rpc.spec.ts` открывают страницу с ethers/viem, нажимают «Run benchmark» и проверяют наличие `window.__benchmarkResults`. Результаты сохраняются в `e2e-results/rpc-ethers.json` и `e2e-results/rpc-viem.json`. Для прохождения тестов нужен работающий RPC: перед `npm run test:e2e` запустите Anvil в отдельном терминале (`npm run anvil`) или используйте `npm run dev:all` и в другом терминале — `npm run test:e2e`.
+Тесты из `e2e/benchmark-rpc.spec.ts` открывают страницу с ethers/viem/web3, нажимают «Run benchmark» и проверяют наличие `window.__benchmarkResults`. Результаты сохраняются в `e2e-results/rpc-ethers.json`, `e2e-results/rpc-viem.json` и `e2e-results/rpc-web3.json`. Для прохождения тестов нужен работающий RPC: перед `npm run test:e2e` запустите Anvil в отдельном терминале (`npm run anvil`) или используйте `npm run dev:all` и в другом терминале — `npm run test:e2e`.
 
 Тесты с MetaMask (connectWallet, подтверждение транзакций) требуют **Synpress** и **Linux**:
 
@@ -97,7 +105,7 @@ npm run test:e2e
    **Важно:** тесты с MetaMask нужно запускать в headed-режиме (с видимым окном браузера), чтобы Synpress мог обрабатывать popup-подтверждения.
 3. Для CI (без дисплея): `npm run test:e2e:wallet:ci` (использует xvfb-run).
 
-Тесты с кошельком прогоняются для ethers и viem отдельно; результаты сохраняются в `e2e-results/wallet-ethers.json` и `e2e-results/wallet-viem.json`.
+Тесты с кошельком прогоняются для ethers и viem отдельно; результаты сохраняются в `e2e-results/wallet-ethers.json` и `e2e-results/wallet-viem.json`. Сценарии **wallet-mock** (без MetaMask) есть для ethers, viem и web3: `e2e/wallet-mock.spec.ts`, артефакты `e2e-results/wallet-mock-*.json`.
 
 На Windows эти сценарии не выполняются.
 
@@ -161,13 +169,13 @@ npm run build:viem    # выход: dist-viem/
   - **Cold start** (мс) — время от начала загрузки адаптера до готовности; выводится в результатах и в экспорте.
   - **connectWallet** (мс) — при включённом «Include connectWallet» замеряется время до получения аккаунтов после `eth_requestAccounts`.
   - При включённом «Include connectWallet» также wallet-операции: **prepareRawTransaction** (формирование), **signTransaction** (подпись), **eth_sendRawTransaction (send only)** — для последней подпись выполняется в `runSetup` без таймера, в замер попадает только вызов `eth_sendRawTransaction` (отправка в сеть).
-- **Фиксация:** кнопка **Export JSON** сохраняет полный результат (в т.ч. cold start, connectWallet, массив операций со статистикой) для последующего сравнения ethers vs viem.
+- **Фиксация:** кнопка **Export JSON** сохраняет полный результат (в т.ч. cold start, connectWallet, массив операций со статистикой) для последующего сравнения ethers, viem и web3.
 
 ### Размер бандла
 
 - **Где:** команда `npm run run-bundle-analysis`, файл `bundle-analysis.json`.
-- **Как:** Выполните `npm run run-bundle-analysis`. Скрипт собирает два варианта приложения (только ethers и только viem) и считает размеры.
-- **Что получаете:** для каждого варианта — размер **raw**, **gzip**, **brotli** (байты); сводка в консоли и JSON в корне проекта. Сравнение двух библиотек по влиянию на объём бандла.
+- **Как:** Выполните `npm run run-bundle-analysis`. Скрипт собирает три варианта приложения (ethers, viem, web3) и три library-only пробы, затем считает размеры.
+- **Что получаете:** для каждого варианта — размер **raw**, **gzip**, **brotli** (байты); сводка в консоли и JSON в корне проекта. Сравнение библиотек по влиянию на объём бандла.
 
 ### Нагрузка на CPU и память (ручной сценарий)
 
