@@ -11,6 +11,7 @@ export function BenchmarkPanel({ onResult }: BenchmarkPanelProps) {
   const { adapter, libId, error, loading } = useWeb3Adapter()
   const [repeats, setRepeats] = useState(100)
   const [includeWallet, setIncludeWallet] = useState(false)
+  const [walletMode, setWalletMode] = useState<'mock' | 'injected'>('mock')
   const [running, setRunning] = useState(false)
   const [connecting, setConnecting] = useState(false)
   const [lastResult, setLastResult] = useState<BenchmarkResultSet | null>(null)
@@ -29,11 +30,26 @@ export function BenchmarkPanel({ onResult }: BenchmarkPanelProps) {
 
   const onRun = async () => {
     if (!adapter) return
+    if (includeWallet && !hasWallet) {
+      const result: BenchmarkResultSet = {
+        libId: adapter.libId,
+        timestamp: Date.now(),
+        operations: [],
+        error: 'Wallet metrics are unavailable: no injected wallet provider (window.ethereum).',
+      }
+      setLastResult(result)
+      onResult?.(result)
+      return
+    }
     setRunning(true)
     setLastResult(null)
     onResult?.(null)
     try {
-      const result = await runBenchmark(adapter, { repeats, includeWalletMetrics: includeWallet })
+      const result = await runBenchmark(adapter, {
+        repeats,
+        includeWalletMetrics: includeWallet,
+        walletMode,
+      })
       setLastResult(result)
       onResult?.(result)
     } finally {
@@ -66,10 +82,29 @@ export function BenchmarkPanel({ onResult }: BenchmarkPanelProps) {
                 type="checkbox"
                 checked={includeWallet}
                 onChange={(e) => setIncludeWallet(e.target.checked)}
+                disabled={!hasWallet}
                 data-testid="include-wallet"
               />
               {' '}Include connectWallet
             </label>
+            {includeWallet && (
+              <label>
+                Wallet mode:{' '}
+                <select
+                  value={walletMode}
+                  onChange={(e) => setWalletMode(e.target.value as 'mock' | 'injected')}
+                  data-testid="wallet-mode"
+                >
+                  <option value="mock">wallet-mock (sign + sendRaw)</option>
+                  <option value="injected">injected wallet (sendTransaction)</option>
+                </select>
+              </label>
+            )}
+            {!hasWallet && (
+              <p style={{ margin: 0, color: '#a65d00' }}>
+                Wallet provider is not detected in UI session.
+              </p>
+            )}
             {hasWallet && (
               <button
                 type="button"

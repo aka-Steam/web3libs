@@ -1,6 +1,6 @@
 import type { Web3Adapter } from '../adapters/types'
 import { computeStats, type TimingStats } from './stats'
-import { type RpcOperation, RPC_OPERATIONS, WALLET_OPERATIONS } from './rpcOperations'
+import { type RpcOperation, RPC_OPERATIONS, WALLET_OPERATIONS_INJECTED, WALLET_OPERATIONS_MOCK } from './rpcOperations'
 
 declare global {
   interface Window {
@@ -13,6 +13,14 @@ export interface OperationResult {
   name: string
   timings: number[]
   stats: TimingStats
+  error?: string
+}
+
+export interface WalletProviderDiagnostics {
+  hasEthereum: boolean
+  isMetaMask?: boolean
+  providerKeys?: string[]
+  requestedMode?: 'rpc' | 'wallet-mock' | 'injected-wallet'
 }
 
 export interface BenchmarkResultSet {
@@ -23,6 +31,7 @@ export interface BenchmarkResultSet {
   connectWalletMs?: number
   operations: OperationResult[]
   error?: string
+  walletProvider?: WalletProviderDiagnostics
 }
 
 export interface RunBenchmarkOptions {
@@ -32,6 +41,43 @@ export interface RunBenchmarkOptions {
    * If false/omitted, benchmark only public RPC operations (rpc-*.json).
    */
   includeWalletMetrics?: boolean
+  walletMode?: 'mock' | 'injected'
+}
+
+function formatError(error: unknown): string {
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  if (typeof error === 'string') {
+    return error
+  }
+
+  if (error && typeof error === 'object') {
+    const asRecord = error as Record<string, unknown>
+    const message = typeof asRecord.message === 'string' ? asRecord.message : undefined
+    const code = asRecord.code
+    const data = asRecord.data
+
+    if (message) {
+      const details: string[] = []
+      if (code !== undefined) details.push(`code=${String(code)}`)
+      if (data !== undefined) details.push(`data=${safeJson(data)}`)
+      return details.length > 0 ? `${message} (${details.join(', ')})` : message
+    }
+
+    return safeJson(asRecord)
+  }
+
+  return String(error)
+}
+
+function safeJson(value: unknown): string {
+  try {
+    return JSON.stringify(value)
+  } catch {
+    return String(value)
+  }
 }
 
 /**
@@ -77,16 +123,41 @@ export async function runBenchmark(
   adapter: Web3Adapter,
   options: RunBenchmarkOptions = {}
 ): Promise<BenchmarkResultSet> {
-  const { repeats = 100, includeWalletMetrics = false } = options
+  const { repeats = 100, includeWalletMetrics = false, walletMode = 'mock' } = options
   const libId = adapter.libId
   const results: OperationResult[] = []
   let coldStartMs: number | undefined
   let hotStartMs: number | undefined
   let connectWalletMs: number | undefined
   let error: string | undefined
+  const operationErrors: string[] = []
+  const walletProvider: WalletProviderDiagnostics = {
+    hasEthereum: typeof window !== 'undefined' && typeof (window as unknown as { ethereum?: unknown }).ethereum === 'object',
+    requestedMode: includeWalletMetrics ? (walletMode === 'mock' ? 'wallet-mock' : 'injected-wallet') : 'rpc',
+  }
+  if (walletProvider.hasEthereum) {
+    const ethereum = (window as unknown as { ethereum?: Record<string, unknown> }).ethereum
+    if (ethereum && typeof ethereum === 'object') {
+      walletProvider.isMetaMask = Boolean(ethereum.isMetaMask)
+      walletProvider.providerKeys = Object.keys(ethereum).slice(0, 20)
+    }
+  }
 
   try {
-    const ops = includeWalletMetrics ? WALLET_OPERATIONS : RPC_OPERATIONS
+    if (
+      includeWalletMetrics &&
+      (!('eth_requestAccounts' in adapter) || typeof adapter.eth_requestAccounts !== 'function')
+    ) {
+      throw new Error(
+        'Wallet provider is not available in this browser session. Wallet metrics require window.ethereum (or wallet-mock in E2E).'
+      )
+    }
+
+    const ops = includeWalletMetrics
+      ? walletMode === 'injected'
+        ? WALLET_OPERATIONS_INJECTED
+        : WALLET_OPERATIONS_MOCK
+      : RPC_OPERATIONS
     const effectiveRepeats = includeWalletMetrics ? Math.min(repeats, 1) : repeats
 
     for (const op of ops) {
@@ -100,8 +171,9 @@ export async function runBenchmark(
           name: op.name,
           timings: [],
           stats: computeStats([]),
+          error: formatError(e),
         })
-        error = e instanceof Error ? e.message : String(e)
+        operationErrors.push(`${op.name}: ${formatError(e)}`)
       }
     }
 
@@ -112,7 +184,7 @@ export async function runBenchmark(
       }
     }
   } catch (e) {
-    error = e instanceof Error ? e.message : String(e)
+    error = formatError(e)
   }
 
   const coldFromWindow = typeof window !== 'undefined' ? (window as unknown as { __benchmarkColdStartMs?: number }).__benchmarkColdStartMs : undefined
@@ -123,7 +195,8 @@ export async function runBenchmark(
     hotStartMs,
     connectWalletMs,
     operations: results,
-    error,
+    error: error ?? (operationErrors.length > 0 ? operationErrors.join(' | ') : undefined),
+    walletProvider,
   }
 
   if (typeof window !== 'undefined') {

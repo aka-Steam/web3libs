@@ -330,6 +330,20 @@ export function createWeb3Adapter(options: Web3AdapterOptions): Web3Adapter {
     walletAdapter.eth_sendRawTransaction = async (signedHex: string) => {
       return send<string>('eth_sendRawTransaction', [signedHex])
     }
+    walletAdapter.eth_sendTransaction = async (params) => {
+      const accounts = (await ethereum.request({ method: 'eth_requestAccounts', params: [] })) as string[]
+      const from = accounts[0]
+      if (!from) throw new Error('No accounts')
+      const txParams = {
+        from,
+        to: params.to,
+        value: `0x${(params.value ?? 0n).toString(16)}`,
+        data: params.data ?? '0x',
+        gas: `0x${(params.gasLimit ?? 21000n).toString(16)}`,
+        chainId: Number(params.chainId),
+      }
+      return ethereum.request({ method: 'eth_sendTransaction', params: [txParams] }) as Promise<string>
+    }
   }
 
   return { ...adapter, ...walletAdapter }

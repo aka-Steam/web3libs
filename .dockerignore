@@ -1,0 +1,17 @@
+node_modules
+npm-debug.log*
+.git
+.github
+.cursor
+dist
+dist-ethers
+dist-viem
+dist-web3
+dist-lib-ethers
+dist-lib-viem
+dist-lib-web3
+e2e-results
+playwright-report
+test-results
+.playwright
+.env

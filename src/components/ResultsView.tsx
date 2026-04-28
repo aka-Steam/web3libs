@@ -20,6 +20,14 @@ export function ResultsView({ result }: ResultsViewProps) {
   return (
     <section style={{ marginTop: '1rem' }}>
       <h2>Results</h2>
+      {result.error && <p style={{ color: 'red' }}>Error: {result.error}</p>}
+      {result.walletProvider && (
+        <p style={{ marginTop: '0.25rem' }}>
+          Wallet provider: {result.walletProvider.hasEthereum ? 'detected' : 'not detected'}
+          {result.walletProvider.isMetaMask !== undefined ? `, isMetaMask=${String(result.walletProvider.isMetaMask)}` : ''}
+          {result.walletProvider.requestedMode ? `, mode=${result.walletProvider.requestedMode}` : ''}
+        </p>
+      )}
       {result.coldStartMs != null && <p>Cold start: {result.coldStartMs.toFixed(2)} ms</p>}
       {result.connectWalletMs != null && <p>connectWallet: {result.connectWalletMs.toFixed(2)} ms</p>}
       <button onClick={exportJson} type="button">Export JSON</button>
@@ -31,6 +39,7 @@ export function ResultsView({ result }: ResultsViewProps) {
             <th style={{ textAlign: 'right', borderBottom: '1px solid #ccc' }}>p95 (ms)</th>
             <th style={{ textAlign: 'right', borderBottom: '1px solid #ccc' }}>min (ms)</th>
             <th style={{ textAlign: 'right', borderBottom: '1px solid #ccc' }}>max (ms)</th>
+            <th style={{ textAlign: 'left', borderBottom: '1px solid #ccc' }}>error</th>
           </tr>
         </thead>
         <tbody>
@@ -41,6 +50,7 @@ export function ResultsView({ result }: ResultsViewProps) {
               <td style={{ textAlign: 'right', borderBottom: '1px solid #eee' }}>{op.stats.p95.toFixed(2)}</td>
               <td style={{ textAlign: 'right', borderBottom: '1px solid #eee' }}>{op.stats.min.toFixed(2)}</td>
               <td style={{ textAlign: 'right', borderBottom: '1px solid #eee' }}>{op.stats.max.toFixed(2)}</td>
+              <td style={{ borderBottom: '1px solid #eee', color: op.error ? 'red' : undefined }}>{op.error ?? ''}</td>
             </tr>
           ))}
         </tbody>

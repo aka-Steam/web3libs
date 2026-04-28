@@ -14,6 +14,11 @@
 npm install
 ```
 
+## Развертывание через Docker
+
+Пошаговая инструкция, требования к ПО/железу и проверка доступности стенда описаны в `docs/deployment.md`.
+Для Docker-режима RPC идёт через прокси `VITE_RPC_URL=/rpc` (Nginx -> контейнер `anvil`).
+
 Юнит-тесты (Vitest, без браузера и RPC по умолчанию):
 
 ```bash
@@ -46,10 +51,10 @@ npm run dev:all
 - `http://localhost:5173/?lib=viem` — viem
 - `http://localhost:5173/?lib=web3` — web3.js (v4)
 
-По умолчанию RPC: `http://127.0.0.1:8545`. Чтобы изменить, создайте `.env`:
+По умолчанию RPC: `/rpc` (в dev-режиме Vite проксирует в `http://127.0.0.1:8545`, в Docker — Nginx проксирует в контейнер `anvil`). Чтобы переопределить, создайте `.env`:
 
 ```
-VITE_RPC_URL=http://127.0.0.1:8545
+VITE_RPC_URL=/rpc
 ```
 
 ## Локальная цепь (Anvil)

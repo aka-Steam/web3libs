@@ -44,57 +44,91 @@ export const RPC_OPERATIONS: RpcOperation[] = [
   { id: 'eth_getUncleByBlockNumberAndIndex', name: 'eth_getUncleByBlockNumberAndIndex', run: (a) => a.eth_getUncleByBlockNumberAndIndex('latest', 0).then(() => {}) },
 ]
 
-// Операции, требующие наличия кошелька (используются в wallet-*.json)
-export const WALLET_OPERATIONS: RpcOperation[] = [
-  {
-    id: 'wallet_connect',
-    name: 'eth_requestAccounts',
-    requiresWallet: true,
-    run: async (adapter) => {
-      if (!('eth_requestAccounts' in adapter) || typeof adapter.eth_requestAccounts !== 'function') {
-        throw new Error('Wallet adapter is not available')
-      }
-      await adapter.eth_requestAccounts()
-    },
+const walletConnectOperation: RpcOperation = {
+  id: 'wallet_connect',
+  name: 'eth_requestAccounts',
+  requiresWallet: true,
+  run: async (adapter) => {
+    if (!('eth_requestAccounts' in adapter) || typeof adapter.eth_requestAccounts !== 'function') {
+      throw new Error('Wallet adapter is not available')
+    }
+    await adapter.eth_requestAccounts()
   },
-  {
-    id: 'wallet_prepareTransaction',
-    name: 'prepareRawTransaction',
-    requiresWallet: true,
-    run: async (adapter) => {
-      if (!('prepareRawTransaction' in adapter) || typeof adapter.prepareRawTransaction !== 'function') {
-        throw new Error('Wallet adapter does not support prepareRawTransaction')
-      }
-      const chainId = await adapter.eth_chainId()
-      await adapter.prepareRawTransaction({
-        to: TEST_ADDRESS,
-        value: 0n,
-        data: '0x',
-        gasLimit: 21000n,
-        chainId,
-      })
-    },
+}
+
+const walletPrepareOperation: RpcOperation = {
+  id: 'wallet_prepareTransaction',
+  name: 'prepareRawTransaction',
+  requiresWallet: true,
+  run: async (adapter) => {
+    if (!('prepareRawTransaction' in adapter) || typeof adapter.prepareRawTransaction !== 'function') {
+      throw new Error('Wallet adapter does not support prepareRawTransaction')
+    }
+    const chainId = await adapter.eth_chainId()
+    await adapter.prepareRawTransaction({
+      to: TEST_ADDRESS,
+      value: 0n,
+      data: '0x',
+      gasLimit: 21000n,
+      chainId,
+    })
   },
-  {
-    id: 'wallet_signTransaction',
-    name: 'signTransaction',
-    requiresWallet: true,
-    run: async (adapter) => {
-      if (!('signTransaction' in adapter) || typeof adapter.signTransaction !== 'function') {
-        throw new Error('Wallet adapter does not support signTransaction')
-      }
-      const chainId = await adapter.eth_chainId()
-      await adapter.signTransaction({
-        to: TEST_ADDRESS,
-        value: 0n,
-        data: '0x',
-        gasLimit: 21000n,
-        chainId,
-      })
-    },
+}
+
+const walletSignOperation: RpcOperation = {
+  id: 'wallet_signTransaction',
+  name: 'signTransaction',
+  requiresWallet: true,
+  run: async (adapter) => {
+    if (!('signTransaction' in adapter) || typeof adapter.signTransaction !== 'function') {
+      throw new Error('Wallet adapter does not support signTransaction')
+    }
+    const chainId = await adapter.eth_chainId()
+    await adapter.signTransaction({
+      to: TEST_ADDRESS,
+      value: 0n,
+      data: '0x',
+      gasLimit: 21000n,
+      chainId,
+    })
   },
+}
+
+const walletSendTransactionOperation: RpcOperation = {
+  id: 'wallet_eth_sendTransaction',
+  name: 'eth_sendTransaction',
+  requiresWallet: true,
+  run: async (adapter) => {
+    if (!('eth_sendTransaction' in adapter) || typeof adapter.eth_sendTransaction !== 'function') {
+      throw new Error('Wallet adapter does not support eth_sendTransaction')
+    }
+    const chainId = await adapter.eth_chainId()
+    await adapter.eth_sendTransaction({
+      to: TEST_ADDRESS,
+      value: 0n,
+      data: '0x',
+      gasLimit: 21000n,
+      chainId,
+    })
+  },
+}
+
+// Операции для wallet-mock (поддерживают sign + sendRaw)
+export const WALLET_OPERATIONS_MOCK: RpcOperation[] = [
+  walletConnectOperation,
+  walletPrepareOperation,
+  walletSignOperation,
   createSendRawTransactionSendOnlyOperation(),
 ]
+
+// Операции для реального injected-wallet (без signTransaction / sendRaw).
+export const WALLET_OPERATIONS_INJECTED: RpcOperation[] = [
+  walletConnectOperation,
+  walletSendTransactionOperation,
+]
+
+// Backward compatibility default.
+export const WALLET_OPERATIONS: RpcOperation[] = WALLET_OPERATIONS_MOCK
 
 /** Замер только `eth_sendRawTransaction`: подпись в `runSetup`, в таймере — broadcast. */
 function createSendRawTransactionSendOnlyOperation(): RpcOperation {

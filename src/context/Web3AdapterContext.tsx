@@ -1,7 +1,7 @@
 import { createContext, useContext } from 'react'
 import type { Web3Adapter } from '../adapters/types'
 
-const defaultRpcUrl = 'http://127.0.0.1:8545'
+const defaultRpcUrl = '/rpc'
 
 export const Web3AdapterContext = createContext<{
   adapter: Web3Adapter | null
@@ -26,9 +26,17 @@ export function useWeb3Adapter() {
 }
 
 export function getRpcUrl(): string {
-  return typeof import.meta !== 'undefined' && import.meta.env?.VITE_RPC_URL
+  const raw = typeof import.meta !== 'undefined' && import.meta.env?.VITE_RPC_URL
     ? String(import.meta.env.VITE_RPC_URL)
     : defaultRpcUrl
+
+  // Some browser providers (notably web3.js and occasionally ethers) expect
+  // an absolute URL and may fail on relative "/rpc" values.
+  if (typeof window !== 'undefined' && raw.startsWith('/')) {
+    return new URL(raw, window.location.origin).toString()
+  }
+
+  return raw
 }
 
 export function getLibFromUrl(): string {

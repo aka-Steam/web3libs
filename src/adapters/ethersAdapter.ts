@@ -318,6 +318,21 @@ export function createEthersAdapter(options: EthersAdapterOptions): Web3Adapter 
       const resp = await provider.broadcastTransaction(signedHex)
       return resp.hash
     }
+    walletAdapter.eth_sendTransaction = async (params) => {
+      const accounts = await ethereum.request({ method: 'eth_requestAccounts', params: [] }) as string[]
+      const from = accounts[0]
+      if (!from) throw new Error('No accounts')
+      const txParams = {
+        from,
+        to: params.to,
+        value: `0x${(params.value ?? 0n).toString(16)}`,
+        data: params.data ?? '0x',
+        gas: `0x${(params.gasLimit ?? 21000n).toString(16)}`,
+        chainId: Number(params.chainId),
+      }
+      const hash = await ethereum.request({ method: 'eth_sendTransaction', params: [txParams] }) as string
+      return hash
+    }
   }
 
   return { ...adapter, ...walletAdapter }

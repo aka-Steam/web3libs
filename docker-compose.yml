@@ -1,0 +1,23 @@
+services:
+  anvil:
+    image: ghcr.io/foundry-rs/foundry:latest
+    container_name: web3-stand-anvil
+    environment:
+      ANVIL_IP_ADDR: 0.0.0.0
+    command: ["anvil", "--port", "8545"]
+    ports:
+      - "8545:8545"
+    restart: unless-stopped
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        VITE_RPC_URL: /rpc
+    container_name: web3-stand-app
+    depends_on:
+      - anvil
+    ports:
+      - "8080:80"
+    restart: unless-stopped

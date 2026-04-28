@@ -140,6 +140,15 @@ export interface IWeb3WalletAdapter {
 
   /** Send already-signed raw tx (hex string from MetaMask) */
   eth_sendRawTransaction(signedHex: string): Promise<string>
+
+  /** Ask wallet to sign and send transaction (real wallet-friendly path) */
+  eth_sendTransaction(params: {
+    to: string
+    value?: bigint
+    data?: string
+    gasLimit?: bigint
+    chainId: bigint
+  }): Promise<string>
 }
 
 export type Web3Adapter = IWeb3Adapter & Partial<IWeb3WalletAdapter>
