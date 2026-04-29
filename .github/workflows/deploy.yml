@@ -71,6 +71,7 @@ jobs:
           DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
           DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
           DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          DEPLOY_SSH_PUB_FINGERPRINT: ${{ secrets.DEPLOY_SSH_PUB_FINGERPRINT }}
           GHCR_USER: ${{ secrets.GHCR_USER }}
           GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
         run: |
@@ -102,6 +103,31 @@ jobs:
           else
             echo "- DEPLOY_PORT: not set (action default will be used)"
           fi
+
+          key_file="$(mktemp)"
+          printf '%s\n' "$DEPLOY_SSH_KEY" > "$key_file"
+          chmod 600 "$key_file"
+
+          if ! ssh-keygen -y -f "$key_file" >/dev/null 2>&1; then
+            echo "::error::DEPLOY_SSH_KEY is not a valid private key"
+            exit 1
+          fi
+
+          runner_fingerprint="$(ssh-keygen -lf "$key_file" -E sha256 | awk '{print $2}')"
+          echo "- DEPLOY_SSH_KEY fingerprint (runner): $runner_fingerprint"
+
+          if [ -n "${DEPLOY_SSH_PUB_FINGERPRINT:-}" ]; then
+            echo "- DEPLOY_SSH_PUB_FINGERPRINT (secret): $DEPLOY_SSH_PUB_FINGERPRINT"
+            if [ "$runner_fingerprint" != "$DEPLOY_SSH_PUB_FINGERPRINT" ]; then
+              echo "::error::Fingerprint mismatch: DEPLOY_SSH_KEY does not match DEPLOY_SSH_PUB_FINGERPRINT"
+              exit 1
+            fi
+            echo "- Fingerprint check: OK"
+          else
+            echo "- DEPLOY_SSH_PUB_FINGERPRINT is not set (comparison skipped)"
+          fi
+
+          rm -f "$key_file"
 
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
