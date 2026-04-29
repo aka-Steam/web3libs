@@ -1,3 +1,5 @@
 {
-  "negativeTestsPanel": false
+  "negativeTestsPanel": false,
+  "allowWalletBenchmarkUi": false,
+  "maxRepeats": 100
 }

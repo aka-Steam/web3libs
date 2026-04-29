@@ -19,7 +19,7 @@ export const RPC_OPERATIONS: RpcOperation[] = [
   { id: 'web3_clientVersion', name: 'web3_clientVersion', run: (a) => a.web3_clientVersion().then(() => {}) },
   { id: 'web3_sha3', name: 'web3_sha3', run: (a) => a.web3_sha3('0x68656c6c6f').then(() => {}) },
   { id: 'net_version', name: 'net_version', run: (a) => a.net_version().then(() => {}) },
-  { id: 'net_peerCount', name: 'net_peerCount', run: (a) => a.net_peerCount().then(() => {}) },
+  // { id: 'net_peerCount', name: 'net_peerCount', run: (a) => a.net_peerCount().then(() => {}) },
   { id: 'net_listening', name: 'net_listening', run: (a) => a.net_listening().then(() => {}) },
   { id: 'eth_chainId', name: 'eth_chainId', run: (a) => a.eth_chainId().then(() => {}) },
   { id: 'eth_syncing', name: 'eth_syncing', run: (a) => a.eth_syncing().then(() => {}) },

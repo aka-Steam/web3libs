@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { useWeb3Adapter } from '../context/Web3AdapterContext'
 import { runBenchmark } from '../benchmark/runner'
 import type { BenchmarkResultSet } from '../benchmark/runner'
+import { clampRepeats, featureFlags } from '../config/featureFlags'
 
 export interface BenchmarkPanelProps {
   onResult?: (result: BenchmarkResultSet | null) => void
@@ -9,7 +10,7 @@ export interface BenchmarkPanelProps {
 
 export function BenchmarkPanel({ onResult }: BenchmarkPanelProps) {
   const { adapter, libId, error, loading } = useWeb3Adapter()
-  const [repeats, setRepeats] = useState(100)
+  const [repeats, setRepeats] = useState(() => clampRepeats(100))
   const [includeWallet, setIncludeWallet] = useState(false)
   const [walletMode, setWalletMode] = useState<'mock' | 'injected'>('mock')
   const [running, setRunning] = useState(false)
@@ -28,9 +29,14 @@ export function BenchmarkPanel({ onResult }: BenchmarkPanelProps) {
     }
   }
 
+  const walletUiAllowed = featureFlags.allowWalletBenchmarkUi
+  const effectiveIncludeWallet = walletUiAllowed && includeWallet
+
   const onRun = async () => {
     if (!adapter) return
-    if (includeWallet && !hasWallet) {
+    const repeatsResolved = clampRepeats(repeats)
+    setRepeats(repeatsResolved)
+    if (effectiveIncludeWallet && !hasWallet) {
       const result: BenchmarkResultSet = {
         libId: adapter.libId,
         timestamp: Date.now(),
@@ -46,8 +52,8 @@ export function BenchmarkPanel({ onResult }: BenchmarkPanelProps) {
     onResult?.(null)
     try {
       const result = await runBenchmark(adapter, {
-        repeats,
-        includeWalletMetrics: includeWallet,
+        repeats: repeatsResolved,
+        includeWalletMetrics: effectiveIncludeWallet,
         walletMode,
       })
       setLastResult(result)
@@ -71,23 +77,27 @@ export function BenchmarkPanel({ onResult }: BenchmarkPanelProps) {
               <input
                 type="number"
                 min={1}
-                max={1000}
+                max={featureFlags.maxRepeats}
                 value={repeats}
-                onChange={(e) => setRepeats(Number(e.target.value) || 100)}
+                onChange={(e) =>
+                  setRepeats(clampRepeats(e.target.value === '' ? 1 : e.target.value))
+                }
                 data-testid="benchmark-repeats"
               />
             </label>
-            <label>
-              <input
-                type="checkbox"
-                checked={includeWallet}
-                onChange={(e) => setIncludeWallet(e.target.checked)}
-                disabled={!hasWallet}
-                data-testid="include-wallet"
-              />
-              {' '}Include connectWallet
-            </label>
-            {includeWallet && (
+            {walletUiAllowed && (
+              <label>
+                <input
+                  type="checkbox"
+                  checked={includeWallet}
+                  onChange={(e) => setIncludeWallet(e.target.checked)}
+                  disabled={!hasWallet}
+                  data-testid="include-wallet"
+                />
+                {' '}Include connectWallet
+              </label>
+            )}
+            {walletUiAllowed && includeWallet && (
               <label>
                 Wallet mode:{' '}
                 <select
@@ -100,12 +110,12 @@ export function BenchmarkPanel({ onResult }: BenchmarkPanelProps) {
                 </select>
               </label>
             )}
-            {!hasWallet && (
+            {walletUiAllowed && !hasWallet && (
               <p style={{ margin: 0, color: '#a65d00' }}>
                 Wallet provider is not detected in UI session.
               </p>
             )}
-            {hasWallet && (
+            {walletUiAllowed && hasWallet && (
               <button
                 type="button"
                 onClick={onConnect}
