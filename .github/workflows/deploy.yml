@@ -62,7 +62,7 @@ jobs:
 
       - name: Export image reference
         id: export
-        run: echo "image_ref=${{ steps.image.outputs.registry_image }}:sha-${{ github.sha }}" >> "$GITHUB_OUTPUT"
+        run: echo "image_ref=${{ steps.image.outputs.registry_image }}:latest" >> "$GITHUB_OUTPUT"
 
   deploy:
     name: Deploy to Host
