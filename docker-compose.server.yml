@@ -5,20 +5,13 @@ services:
     environment:
       ANVIL_IP_ADDR: 0.0.0.0
     command: ["anvil", "--port", "8545"]
-    ports:
-      - "8545:8545"
     restart: unless-stopped
 
   app:
-    image: ${APP_IMAGE:-web3-stand-app:local}
-    build:
-      context: .
-      dockerfile: Dockerfile
-      args:
-        VITE_RPC_URL: /rpc
+    image: ${APP_IMAGE:-ghcr.io/replace-me/playground-v2-app:latest}
     container_name: web3-stand-app
     depends_on:
       - anvil
     ports:
-      - "8080:80"
+      - "80:80"
     restart: unless-stopped
