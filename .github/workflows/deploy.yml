@@ -63,21 +63,74 @@ jobs:
     needs: publish
     if: github.ref == 'refs/heads/main'
     steps:
+      - name: Preflight deploy configuration
+        shell: bash
+        env:
+          DEPLOY_HOST: ${{ secrets.DEPLOY_HOST }}
+          DEPLOY_USER: ${{ secrets.DEPLOY_USER }}
+          DEPLOY_PATH: ${{ secrets.DEPLOY_PATH }}
+          DEPLOY_PORT: ${{ secrets.DEPLOY_PORT }}
+          DEPLOY_SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
+          GHCR_USER: ${{ secrets.GHCR_USER }}
+          GHCR_TOKEN: ${{ secrets.GHCR_TOKEN }}
+        run: |
+          set -euo pipefail
+          echo "Deploy target preflight"
+          echo "- github_ref: $GITHUB_REF"
+          echo "- github_sha: $GITHUB_SHA"
+          echo "- image_ref: ${{ needs.publish.outputs.image_ref }}"
+
+          check_secret() {
+            local name="$1"
+            local value="$2"
+            if [ -z "$value" ]; then
+              echo "::error::$name is empty or not set"
+              exit 1
+            fi
+            echo "- $name: present (length=${#value})"
+          }
+
+          check_secret "DEPLOY_HOST" "$DEPLOY_HOST"
+          check_secret "DEPLOY_USER" "$DEPLOY_USER"
+          check_secret "DEPLOY_PATH" "$DEPLOY_PATH"
+          check_secret "DEPLOY_SSH_KEY" "$DEPLOY_SSH_KEY"
+          check_secret "GHCR_USER" "$GHCR_USER"
+          check_secret "GHCR_TOKEN" "$GHCR_TOKEN"
+
+          if [ -n "$DEPLOY_PORT" ]; then
+            echo "- DEPLOY_PORT: present (value=$DEPLOY_PORT)"
+          else
+            echo "- DEPLOY_PORT: not set (action default will be used)"
+          fi
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.DEPLOY_HOST }}
           username: ${{ secrets.DEPLOY_USER }}
           key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT }}
+          debug: true
           script_stop: true
           script: |
+            set -euo pipefail
             export APP_IMAGE="${{ needs.publish.outputs.image_ref }}"
             export ANVIL_IMAGE="ghcr.io/foundry-rs/foundry:latest"
             export GHCR_USER="${{ secrets.GHCR_USER }}"
             export GHCR_TOKEN="${{ secrets.GHCR_TOKEN }}"
             export DEPLOY_PATH="${{ secrets.DEPLOY_PATH }}"
 
+            echo "Remote deploy diagnostics"
+            echo "- whoami: $(whoami)"
+            echo "- hostname: $(hostname)"
+            echo "- pwd: $(pwd)"
+            echo "- deploy_path: $DEPLOY_PATH"
+            docker --version
+            docker compose version
+
             echo "$GHCR_TOKEN" | docker login ghcr.io -u "$GHCR_USER" --password-stdin
             cd "$DEPLOY_PATH"
+            ls -la
             docker compose pull
             docker compose up -d --remove-orphans
+            docker compose ps
