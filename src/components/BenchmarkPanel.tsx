@@ -10,7 +10,7 @@ export interface BenchmarkPanelProps {
 
 export function BenchmarkPanel({ onResult }: BenchmarkPanelProps) {
   const { adapter, libId, error, loading } = useWeb3Adapter()
-  const [repeats, setRepeats] = useState(() => clampRepeats(100))
+  const [repeats, setRepeats] = useState(() => clampRepeats(20))
   const [includeWallet, setIncludeWallet] = useState(false)
   const [walletMode, setWalletMode] = useState<'mock' | 'injected'>('mock')
   const [running, setRunning] = useState(false)
