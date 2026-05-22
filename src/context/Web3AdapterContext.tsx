@@ -1,5 +1,7 @@
 import { createContext, useContext } from 'react'
 import type { Web3Adapter } from '../adapters/types'
+import type { AdapterId } from '../config/adapters'
+import { resolveAdapterIdFromUrl } from '../config/adapters'
 
 const defaultRpcUrl = '/rpc'
 
@@ -39,8 +41,9 @@ export function getRpcUrl(): string {
   return raw
 }
 
-export function getLibFromUrl(): string {
+/** Resolved adapter id from `?lib=` (only enabled adapters from featureFlags). */
+export function getLibFromUrl(): AdapterId {
   if (typeof window === 'undefined') return 'ethers'
   const params = new URLSearchParams(window.location.search)
-  return params.get('lib') ?? 'ethers'
+  return resolveAdapterIdFromUrl(params.get('lib'))
 }

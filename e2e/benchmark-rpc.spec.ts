@@ -9,6 +9,12 @@ import { test, expect } from '@playwright/test'
 
 const RESULTS_DIR = path.join(process.cwd(), 'e2e-results')
 
+function isEthersRpcEnabled(): boolean {
+  const flagsPath = path.join(process.cwd(), 'src/config/featureFlags.json')
+  const raw = JSON.parse(fs.readFileSync(flagsPath, 'utf-8')) as { adapters?: { ethersRpc?: boolean } }
+  return raw.adapters?.ethersRpc === true
+}
+
 function saveResults(type: string, libId: string, results: unknown) {
   fs.mkdirSync(RESULTS_DIR, { recursive: true })
   const file = path.join(RESULTS_DIR, `${type}-${libId}.json`)
@@ -26,6 +32,21 @@ test.describe('Benchmark RPC (ethers)', () => {
     expect(results?.libId).toBe('ethers')
     expect(results?.operations?.length).toBeGreaterThan(0)
     if (results) saveResults('rpc', 'ethers', results)
+  })
+})
+
+test.describe('Benchmark RPC (ethers-rpc)', () => {
+  test('run benchmark and collect results', async ({ page }) => {
+    test.skip(!isEthersRpcEnabled(), 'ethersRpc adapter disabled in featureFlags.json')
+
+    await page.goto('/?lib=ethers-rpc')
+    await page.waitForSelector('text=Adapter: ethers-rpc', { timeout: 10000 })
+    await page.getByTestId('run-benchmark').click()
+    await page.waitForFunction(() => (window as unknown as { __benchmarkResults?: unknown }).__benchmarkResults != null, { timeout: 120000 })
+    const results = await page.evaluate(() => (window as unknown as { __benchmarkResults?: { libId: string; operations: unknown[] } }).__benchmarkResults)
+    expect(results?.libId).toBe('ethers-rpc')
+    expect(results?.operations?.length).toBeGreaterThan(0)
+    if (results) saveResults('rpc', 'ethers-rpc', results)
   })
 })
 

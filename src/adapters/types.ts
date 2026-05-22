@@ -57,9 +57,12 @@ export interface FeeHistoryResult {
   reward?: bigint[][]
 }
 
+/** Benchmark / export identifier for the loaded adapter implementation. */
+export type LibId = 'ethers' | 'ethers-rpc' | 'viem' | 'web3'
+
 /** Public RPC (no wallet) */
 export interface IWeb3Adapter {
-  readonly libId: 'ethers' | 'viem' | 'web3'
+  readonly libId: LibId
 
   // web3_*
   web3_clientVersion(): Promise<string>

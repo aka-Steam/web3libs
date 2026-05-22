@@ -45,11 +45,27 @@ npm run dev
 npm run dev:all
 ```
 
-Приложение откроется на `http://localhost:5173`. Выбор библиотеки по query-параметру:
+Приложение откроется на `http://localhost:5173`. Выбор адаптера по query-параметру `?lib=`:
 
-- `http://localhost:5173/?lib=ethers` — ethers.js
+- `http://localhost:5173/?lib=ethers` — **ethers.js (Provider)** — `JsonRpcProvider`, `getBalance`, `getFeeData` и т.д. (как в документации)
+- `http://localhost:5173/?lib=ethers-rpc` — **ethers (RPC parity)** — тонкий JSON-RPC, один метод бенчмарка ≈ один RPC (для сравнения с viem/web3)
 - `http://localhost:5173/?lib=viem` — viem
 - `http://localhost:5173/?lib=web3` — web3.js (v4)
+
+Какие кнопки и режимы доступны в UI, задаётся в `src/config/featureFlags.json` → `adapters`:
+
+```json
+{
+  "adapters": {
+    "ethers": true,
+    "ethersRpc": false,
+    "viem": true,
+    "web3": true
+  }
+}
+```
+
+По умолчанию **ethers (RPC parity)** выключен (`ethersRpc: false`), чтобы бенчмарк по умолчанию отражал типичное использование ethers через Provider. Включите `ethersRpc: true`, если нужен второй режим для сравнения.
 
 По умолчанию RPC: `/rpc` (в dev-режиме Vite проксирует в `http://127.0.0.1:8545`, в Docker — Nginx проксирует в контейнер `anvil`). Чтобы переопределить, создайте `.env`:
 
@@ -101,7 +117,7 @@ npm run test:e2e -- e2e/benchmark-rpc.spec.ts
 npm run test:e2e
 ```
 
-Тесты из `e2e/benchmark-rpc.spec.ts` открывают страницу с ethers/viem/web3, нажимают «Run benchmark» и проверяют наличие `window.__benchmarkResults`. Результаты сохраняются в `e2e-results/rpc-ethers.json`, `e2e-results/rpc-viem.json` и `e2e-results/rpc-web3.json`. Для прохождения тестов нужен работающий RPC: перед `npm run test:e2e` запустите Anvil в отдельном терминале (`npm run anvil`) или используйте `npm run dev:all` и в другом терминале — `npm run test:e2e`.
+Тесты из `e2e/benchmark-rpc.spec.ts` открывают страницу с выбранным адаптером, нажимают «Run benchmark» и проверяют наличие `window.__benchmarkResults`. Результаты сохраняются в `e2e-results/rpc-{libId}.json` (например `rpc-ethers.json`, при включённом флаге — `rpc-ethers-rpc.json`). Для прохождения тестов нужен работающий RPC: перед `npm run test:e2e` запустите Anvil в отдельном терминале (`npm run anvil`) или используйте `npm run dev:all` и в другом терминале — `npm run test:e2e`.
 
 Тесты с MetaMask (connectWallet, подтверждение транзакций) требуют **Synpress** и **Linux**:
 

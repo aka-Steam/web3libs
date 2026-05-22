@@ -1,3 +1,7 @@
+/**
+ * Ethers adapter using documented high-level Provider APIs (JsonRpcProvider, getBalance, getFeeData, …).
+ * Default for ?lib=ethers — reflects typical tutorial / dApp usage.
+ */
 import {
   JsonRpcProvider,
   Transaction as EthersTx,
@@ -259,7 +263,8 @@ export function createEthersAdapter(options: EthersAdapterOptions): Web3Adapter 
     },
 
     async eth_getUncleCountByBlockNumber(block: BlockTag) {
-      return send<number>('eth_getUncleCountByBlockNumber', [blockTagToString(block)])
+      const hex = await send<string>('eth_getUncleCountByBlockNumber', [blockTagToString(block)])
+      return Number.parseInt(hex, 16)
     },
     async eth_getUncleByBlockNumberAndIndex(block: BlockTag, index: number) {
       const raw = await send<unknown>('eth_getUncleByBlockNumberAndIndex', [blockTagToString(block), toQuantity(index)])

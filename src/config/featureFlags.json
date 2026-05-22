@@ -1,4 +1,10 @@
 {
+  "adapters": {
+    "ethers": true,
+    "ethersRpc": false,
+    "viem": true,
+    "web3": true
+  },
   "negativeTestsPanel": false,
   "allowWalletBenchmarkUi": false,
   "maxRepeats": 100
