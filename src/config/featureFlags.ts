@@ -5,7 +5,17 @@ function readAllowWalletBenchmarkUi(): boolean {
   return v !== false
 }
 
+export type AdapterFeatureFlags = {
+  /** ethers.js через JsonRpcProvider / getBalance / getFeeData (документация). */
+  ethers: boolean
+  /** ethers.js с тонким JSON-RPC (сравнение 1:1 с viem/web3). */
+  ethersRpc: boolean
+  viem: boolean
+  web3: boolean
+}
+
 export type FeatureFlags = {
+  adapters: AdapterFeatureFlags
   /** Панель негативных сценариев (неверный RPC, смена сети в кошельке). */
   negativeTestsPanel: boolean
   /**
@@ -17,7 +27,18 @@ export type FeatureFlags = {
   maxRepeats: number
 }
 
+function readAdapterFlags(): AdapterFeatureFlags {
+  const a = (raw as { adapters?: Partial<AdapterFeatureFlags> }).adapters ?? {}
+  return {
+    ethers: a.ethers !== false,
+    ethersRpc: a.ethersRpc === true,
+    viem: a.viem !== false,
+    web3: a.web3 !== false,
+  }
+}
+
 export const featureFlags: FeatureFlags = {
+  adapters: readAdapterFlags(),
   negativeTestsPanel: raw.negativeTestsPanel,
   allowWalletBenchmarkUi: readAllowWalletBenchmarkUi(),
   maxRepeats: (() => {
